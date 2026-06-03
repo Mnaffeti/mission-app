@@ -1,0 +1,5 @@
+﻿comment_id,comment_text,text_clean,distilbert_label,distilbert_score
+1,shitiiiiiiiiii,shitiiiiiiiiii,negative,0.9989
+2,the shit is shit,the shit is shit,negative,0.9994
+3,Esprit is the best university,esprit is the best university,positive,0.9999
+4,Esprit is the best University,esprit is the best university,positive,0.9999
