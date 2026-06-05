@@ -111,11 +111,16 @@ export default function AdminDashboard() {
     if (!raw.length) { setEntries([]); return }
 
     setFetching(true)
-    const initial = raw.map(r => ({ ...r, actionLoading: true, action: null, actionError: null }))
+    const initial = raw.map(r => ({
+      ...r,
+      actionLoading: !r.action,
+      actionError: null,
+    }))
     setEntries(initial)
 
     const updated = await Promise.all(
       raw.map(async r => {
+        if (r.action) return { ...r, actionLoading: false, actionError: null }
         try {
           const res  = await fetch(ACTION_API, {
             method: 'POST',
@@ -129,6 +134,11 @@ export default function AdminDashboard() {
         }
       })
     )
+
+    // persist actions back so they are not re-fetched next time
+    const toSave = updated.map(({ actionLoading, actionError, ...r }) => r)
+    localStorage.setItem('ae_reviews', JSON.stringify(toSave))
+
     setEntries(updated)
     setFetching(false)
   }
