@@ -107,7 +107,8 @@ export default function AdminDashboard() {
   }, [entries])
 
   async function loadReviews() {
-    const raw = JSON.parse(localStorage.getItem('ae_reviews') || '[]')
+    const all = JSON.parse(localStorage.getItem('ae_reviews') || '[]')
+    const raw = all.filter(r => r.sentiment !== 'positive')
     if (!raw.length) { setEntries([]); return }
 
     setFetching(true)

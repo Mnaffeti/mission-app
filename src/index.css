@@ -569,13 +569,56 @@ body {
 /* ═══════════════════════════════════════════════════════════
    REVIEW / SENTIMENT
 ═══════════════════════════════════════════════════════════ */
+
+/* Hero header */
+.ra-hero {
+  display: flex; align-items: center; gap: 18px;
+  padding: 36px 48px 28px; border-bottom: 1px solid var(--hairline);
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.ra-hero-icon {
+  font-size: 36px; line-height: 1; animation: ra-float 3s ease-in-out infinite;
+}
+@keyframes ra-float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50%       { transform: translateY(-6px) rotate(5deg); }
+}
+.ra-hero-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  font-size: 34px; font-weight: 600; letter-spacing: -0.374px; color: var(--ink);
+}
+.ra-hero-sub {
+  font-size: 17px; line-height: 1.47; letter-spacing: -0.374px;
+  color: var(--ink-48); margin-top: 4px;
+}
+
+/* Star rating */
+.ra-stars-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.ra-stars-label {
+  font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.2px;
+}
+.ra-stars { display: flex; gap: 4px; }
+.ra-stars span { display: flex; transition: transform .12s; }
+.ra-stars span:hover { transform: scale(1.2); }
+.ra-stars-hint {
+  font-size: 14px; color: var(--ink-48); letter-spacing: -0.2px;
+  animation: ra-fadein .2s ease;
+}
+
+/* Textarea */
 .review-textarea {
   width: 100%; min-height: 160px; padding: 18px 22px;
   border: 1px solid var(--hairline); border-radius: 18px;
   background: var(--parchment); font: inherit;
   font-size: 17px; line-height: 1.47; letter-spacing: -0.374px;
   color: var(--ink); resize: vertical; outline: none;
-  transition: border .15s, box-shadow .15s;
+  transition: border .15s, box-shadow .15s, background .15s;
 }
 .review-textarea:focus {
   border: 2px solid var(--blue-focus);
@@ -583,12 +626,88 @@ body {
   background: var(--canvas);
 }
 .review-textarea::placeholder { color: var(--ink-48); }
+.ra-textarea { min-height: 140px; }
+
 .char-count {
   text-align: right; font-size: 12px; color: var(--ink-48);
   letter-spacing: -0.12px; margin-top: 8px;
 }
 .char-count.warn  { color: var(--orange); }
 .char-count.limit { color: var(--red); }
+
+/* Submit button override */
+.ra-submit-btn {
+  font-weight: 600;
+  transition: background .15s, transform .12s, box-shadow .15s;
+}
+.ra-submit-btn:not(:disabled):hover {
+  box-shadow: 0 6px 24px rgba(0,102,204,.28);
+  transform: translateY(-1px);
+}
+.ra-submit-btn:not(:disabled):active { transform: scale(.96); box-shadow: none; }
+
+/* Error */
+.ra-error-card {
+  margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 18px; border-radius: 14px;
+  background: rgba(255,69,58,.06); border: 1px solid rgba(255,69,58,.18);
+  animation: ra-fadein .25s ease;
+}
+.ra-error-card p { font-size: 14px; color: var(--red); line-height: 1.5; }
+
+/* Result card */
+@keyframes ra-fadein {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ra-result-card {
+  margin-top: 28px;
+  border: 1.5px solid color-mix(in srgb, var(--sent-color) 30%, var(--hairline));
+  border-radius: 20px; overflow: hidden;
+  animation: ra-fadein .35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 32px color-mix(in srgb, var(--sent-color) 12%, transparent);
+}
+.ra-result-banner {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 24px;
+  background: var(--sent-bg);
+  border-bottom: 1px solid color-mix(in srgb, var(--sent-color) 20%, var(--hairline));
+}
+.ra-result-emoji { font-size: 38px; line-height: 1; animation: ra-pop .4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes ra-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.ra-result-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  font-size: 20px; font-weight: 600; letter-spacing: -0.3px; color: var(--ink);
+}
+.ra-result-sub { font-size: 13px; color: var(--ink-48); margin-top: 2px; letter-spacing: -0.1px; }
+.ra-result-body { padding: 24px; background: var(--canvas); }
+.ra-score-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+  text-transform: uppercase; color: var(--ink-48); margin-bottom: 4px;
+}
+.ra-score-value {
+  font-size: 32px; font-weight: 700; letter-spacing: -0.5px; line-height: 1;
+  margin-bottom: 10px;
+}
+.ra-bar-track {
+  height: 6px; background: #e8e8ed; border-radius: 9999px; overflow: hidden;
+}
+.ra-bar-fill {
+  height: 100%; border-radius: 9999px;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+  width: 0;
+}
+.ra-clean-text {
+  font-size: 14px; color: var(--ink-48); line-height: 1.5;
+  letter-spacing: -0.14px; margin-top: 14px; font-style: italic;
+}
+.ra-section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--ink-48);
+}
 
 .sentiment-body { padding: 28px 24px; }
 .sentiment-row  { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
