@@ -1,0 +1,16 @@
+# How to Run
+
+1. Install dependencies
+   pip install groq python-dotenv flask flask-cors
+
+2. Start the API
+   python airline_api.py
+
+3. Send a review
+   POST http://localhost:5001/analyze-review
+   Content-Type: application/json
+
+   { "review": "My flight was delayed 4 hours and no compensation was offered." }
+
+4. Response
+   { "message": "..." }

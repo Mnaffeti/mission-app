@@ -203,6 +203,17 @@ export default function ReviewAnalyzer() {
       const data = await callSentimentAPI(text)
       setResult(data)
       setHistory(prev => [...prev, data])
+
+      const stored = JSON.parse(localStorage.getItem('ae_reviews') || '[]')
+      stored.push({
+        id:        Date.now(),
+        email:     localStorage.getItem('ae_email') || 'unknown',
+        text,
+        timestamp: new Date().toISOString(),
+        sentiment: data.distilbert_label,
+        score:     data.distilbert_score,
+      })
+      localStorage.setItem('ae_reviews', JSON.stringify(stored))
     } catch (err) {
       setApiError(err.message)
     } finally {
