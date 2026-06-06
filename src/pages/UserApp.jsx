@@ -54,7 +54,7 @@ export default function UserApp() {
 
       {/* Global Nav */}
       <nav className="global-nav">
-        <span className="nav-brand">AirEsprit</span>
+        <span className="nav-brand">FlySmart</span>
         <div className="nav-right">
           <span className="nav-email">{email}</span>
           <button className="nav-signout-btn" onClick={signOut}>

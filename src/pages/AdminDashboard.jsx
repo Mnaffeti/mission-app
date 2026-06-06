@@ -171,7 +171,7 @@ export default function AdminDashboard() {
 
       {/* Global Nav */}
       <nav className="global-nav">
-        <span className="nav-brand">AirEsprit</span>
+        <span className="nav-brand">FlySmart</span>
         <div className="nav-right">
           <span className="nav-email">{email}</span>
           <button className="nav-signout-btn" onClick={signOut}>
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           {dashboardUrl ? (
             <iframe
-              title="AirEsprit Power BI Dashboard"
+              title="FlySmart Power BI Dashboard"
               src={dashboardUrl}
               className="powerbi-frame"
               allowFullScreen

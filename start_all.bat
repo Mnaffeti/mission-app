@@ -1,8 +1,8 @@
 @echo off
-title AirEsprit Launcher
+title FlySmart Launcher
 
 echo ======================================
-echo         STARTING AIRESPRIT
+echo         STARTING FlySmart
 echo ======================================
 
 REM ======================================

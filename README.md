@@ -1,4 +1,4 @@
-# AirEsprit
+# FlySmart
 
 React web app with passport scanning, review sentiment analysis, and a Power BI admin dashboard.
 

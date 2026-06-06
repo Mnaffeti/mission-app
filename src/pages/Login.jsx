@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div className="login-page">
       <nav className="global-nav">
-        <span className="nav-brand">AirEsprit</span>
+        <span className="nav-brand">FlySmart</span>
       </nav>
 
       <main className="login-main">
@@ -86,7 +86,7 @@ export default function Login() {
         </div>
       </main>
 
-      <footer className="login-footer">© 2025 AirEsprit. All rights reserved.</footer>
+      <footer className="login-footer">© 2025 FlySmart. All rights reserved.</footer>
     </div>
   )
 }
