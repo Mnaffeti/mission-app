@@ -1,7 +1,17 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const POWER_BI_EMBED_URL = ''
+const POWER_BI_EMBED_URL = {
+  'admin@airline.com':
+    'https://app.powerbi.com/reportEmbed?reportId=ae23fc12-6252-486d-a8f7-b540e2a197ec&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730',
+
+  'marketing@airline.com':
+    'https://app.powerbi.com/reportEmbed?reportId=94462950-51c7-4c90-80c0-1255bd68aed6&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730',
+
+  'analytics@airline.com':
+    'https://app.powerbi.com/reportEmbed?reportId=67d45a4d-bc2e-4124-ba5d-997c8d568268&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730',
+}
+
 const ACTION_API = 'http://localhost:5001/analyze-review'
 
 const SENT_CFG = {
@@ -92,6 +102,7 @@ function ReviewCard({ entry }) {
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const email    = localStorage.getItem('ae_email') || ''
+  const dashboardUrl = POWER_BI_EMBED_URL[email]
 
   const [panelOpen, setPanelOpen] = useState(false)
   const [entries,   setEntries]   = useState([])
@@ -191,10 +202,10 @@ export default function AdminDashboard() {
 
         {/* Main dashboard */}
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-          {POWER_BI_EMBED_URL ? (
+          {dashboardUrl ? (
             <iframe
               title="AirEsprit Power BI Dashboard"
-              src={POWER_BI_EMBED_URL}
+              src={dashboardUrl}
               className="powerbi-frame"
               allowFullScreen
             />
