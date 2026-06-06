@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passport Detection Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #17212b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone {
+            width: 380px;
+            height: 720px;
+            background: #0e1621;
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .chat-header {
+            background: #17212b;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #0d1117;
+        }
+
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5b7de8, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .bot-info h2 { color: #fff; font-size: 15px; }
+        .bot-info span { color: #6b8aad; font-size: 12px; }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .messages::-webkit-scrollbar { width: 4px; }
+        .messages::-webkit-scrollbar-thumb { background: #2b5278; border-radius: 2px; }
+
+        .msg {
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg.sent { align-self: flex-end; align-items: flex-end; }
+        .msg.received { align-self: flex-start; align-items: flex-start; }
+
+        .bubble {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .msg.sent .bubble {
+            background: #2b5278;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.received .bubble {
+            background: #182533;
+            color: #d1d5db;
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble img {
+            max-width: 220px;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            color: #6b8aad;
+            margin-top: 3px;
+            padding: 0 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 10px 14px;
+            background: #182533;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            background: #6b8aad;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        .result-card {
+            background: #1a2838;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .result-card img {
+            width: 100%;
+            display: block;
+            border-radius: 0;
+        }
+
+        .result-card .result-body {
+            padding: 10px;
+        }
+
+        .result-status {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .result-status.yes { color: #4ade80; }
+        .result-status.no  { color: #f87171; }
+
+        .result-conf {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .conf-bar {
+            height: 4px;
+            background: #0e1621;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .conf-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5b7de8, #8b5cf6);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .field-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .field-tag {
+            background: #2b5278;
+            color: #93c5fd;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+        }
+
+        /* Input bar */
+        .input-bar {
+            background: #17212b;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #0d1117;
+        }
+
+        .attach-btn {
+            background: none;
+            border: none;
+            color: #6b8aad;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .attach-btn:hover { color: #5b7de8; }
+
+        #fileInput { display: none; }
+
+        .text-input {
+            flex: 1;
+            background: #242f3d;
+            border: none;
+            border-radius: 20px;
+            padding: 9px 16px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .text-input::placeholder { color: #6b8aad; }
+
+        .send-btn {
+            background: linear-gradient(135deg, #5b7de8, #8b5cf6);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover { transform: scale(1.08); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Debug panel */
+        body { align-items: flex-start; padding: 30px 20px; gap: 20px; flex-wrap: wrap; }
+
+        .debug-panel {
+            width: 460px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-self: flex-start;
+            margin-top: 0;
+        }
+
+        .debug-block {
+            background: #0e1621;
+            border: 1px solid #1e2d3d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .debug-block-header {
+            background: #17212b;
+            padding: 8px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b8aad;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .debug-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .badge-pending { background: #2b3a4a; color: #6b8aad; }
+        .badge-ok      { background: #14532d; color: #4ade80; }
+        .badge-err     { background: #4c1111; color: #f87171; }
+
+        .debug-pre {
+            padding: 12px 14px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
+            color: #93c5fd;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 220px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .debug-pre::-webkit-scrollbar { width: 4px; }
+        .debug-pre::-webkit-scrollbar-thumb { background: #2b5278; border-radius: 2px; }
+
+        .debug-pre .key   { color: #f472b6; }
+        .debug-pre .str   { color: #86efac; }
+        .debug-pre .num   { color: #fbbf24; }
+        .debug-pre .bool  { color: #a78bfa; }
+        .debug-pre .b64   { color: #38bdf8; }
+
+        .copy-btn {
+            background: #2b5278;
+            border: none;
+            border-radius: 6px;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            letter-spacing: 0.05em;
+        }
+        .copy-btn:hover { background: #5b7de8; color: #fff; }
+        .copy-btn.copied { background: #14532d; color: #4ade80; }
+    </style>
+</head>
+<body>
+<div class="phone">
+    <div class="chat-header">
+        <div class="bot-avatar">🛂</div>
+        <div class="bot-info">
+            <h2>Passport Bot</h2>
+            <span>Send an image to detect passport</span>
+        </div>
+    </div>
+
+    <div class="messages" id="messages">
+        <div class="msg received">
+            <div class="bubble">Hi! Send me a photo and I'll detect whether it contains a passport. 📷</div>
+            <span class="msg-time">now</span>
+        </div>
+    </div>
+
+    <div class="input-bar">
+        <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Attach image">📎</button>
+        <input type="file" id="fileInput" accept="image/*">
+        <input type="text" class="text-input" id="textInput" placeholder="Attach an image…" readonly>
+        <button class="send-btn" id="sendBtn" onclick="sendImage()" disabled>➤</button>
+    </div>
+</div><!-- /phone -->
+
+<div class="debug-panel">
+
+    <!-- Base64 block -->
+    <div class="debug-block">
+        <div class="debug-block-header">
+            Base64 Encoded Image
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="copy-btn" id="copyB64Btn" onclick="copyB64()" disabled>Copy</button>
+                <span class="debug-badge badge-pending" id="b64Badge">waiting</span>
+            </div>
+        </div>
+        <div class="debug-pre" id="b64Output">— select an image to see the encoded string —</div>
+    </div>
+
+    <!-- JSON Request block -->
+    <div class="debug-block">
+        <div class="debug-block-header">
+            JSON Request  →  POST /detect
+            <span class="debug-badge badge-pending" id="reqBadge">waiting</span>
+        </div>
+        <div class="debug-pre" id="reqOutput">— waiting for send —</div>
+    </div>
+
+    <!-- JSON Response block -->
+    <div class="debug-block">
+        <div class="debug-block-header">
+            JSON Response  ←  Flask + YOLO
+            <span class="debug-badge badge-pending" id="resBadge">waiting</span>
+        </div>
+        <div class="debug-pre" id="resOutput">— waiting for response —</div>
+    </div>
+
+</div><!-- /debug-panel -->
+
+<script>
+    const API_URL = 'http://localhost:5000/detect';
+    const messages = document.getElementById('messages');
+    const fileInput = document.getElementById('fileInput');
+    const textInput = document.getElementById('textInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    let selectedFile = null;
+    let currentB64 = '';
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedFile = file;
+        textInput.value = file.name;
+        sendBtn.disabled = false;
+    });
+
+    function now() {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addMessage(side, content, isHTML = false) {
+        const msg = document.createElement('div');
+        msg.className = `msg ${side}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        if (isHTML) bubble.innerHTML = content;
+        else bubble.textContent = content;
+        const time = document.createElement('span');
+        time.className = 'msg-time';
+        time.textContent = now();
+        msg.appendChild(bubble);
+        msg.appendChild(time);
+        messages.appendChild(msg);
+        messages.scrollTop = messages.scrollHeight;
+        return bubble;
+    }
+
+    function addTyping() {
+        const msg = document.createElement('div');
+        msg.className = 'msg received';
+        msg.id = 'typing';
+        msg.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        messages.appendChild(msg);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const t = document.getElementById('typing');
+        if (t) t.remove();
+    }
+
+    // ── debug helpers ──────────────────────────────────────────
+    function setBadge(id, state) {
+        const el = document.getElementById(id);
+        el.className = 'debug-badge';
+        if (state === 'ok')  el.classList.add('badge-ok'),  el.textContent = '200 OK';
+        if (state === 'err') el.classList.add('badge-err'), el.textContent = 'error';
+        if (state === 'sending') { el.classList.add('badge-pending'); el.textContent = 'sending…'; }
+        if (state === 'ready')   { el.classList.add('badge-ok');      el.textContent = 'ready'; }
+    }
+
+    function syntaxHL(json) {
+        return json
+            .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (m) => {
+                if (/^"/.test(m)) {
+                    if (/:$/.test(m)) return `<span class="key">${m}</span>`;
+                    // truncate long base64 strings
+                    if (m.length > 80) return `<span class="b64">"${m.slice(1, 40)}…[${m.length - 2} chars]…${m.slice(-10)}"</span>`;
+                    return `<span class="str">${m}</span>`;
+                }
+                if (/true|false/.test(m)) return `<span class="bool">${m}</span>`;
+                return `<span class="num">${m}</span>`;
+            });
+    }
+
+    function showDebug(elId, obj) {
+        const pre = document.getElementById(elId);
+        pre.innerHTML = syntaxHL(JSON.stringify(obj, null, 2));
+    }
+
+    function showB64(base64) {
+        currentB64 = base64;
+        const el = document.getElementById('b64Output');
+        const preview = base64.slice(0, 120) + `…  [${base64.length} chars total]  …` + base64.slice(-40);
+        el.innerHTML = `<span class="b64">${preview}</span>`;
+        setBadge('b64Badge', 'ready');
+        const btn = document.getElementById('copyB64Btn');
+        btn.disabled = false;
+        btn.classList.remove('copied');
+        btn.textContent = 'Copy';
+    }
+
+    function copyB64() {
+        if (!currentB64) return;
+        navigator.clipboard.writeText(currentB64).then(() => {
+            const btn = document.getElementById('copyB64Btn');
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+    // ───────────────────────────────────────────────────────────
+
+    async function sendImage() {
+        if (!selectedFile) return;
+
+        sendBtn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const dataUrl = e.target.result;
+            addMessage('sent', `<img src="${dataUrl}" alt="sent">`, true);
+
+            textInput.value = '';
+            fileInput.value = '';
+            selectedFile = null;
+
+            addTyping();
+
+            // Strip data URL prefix → raw base64
+            const base64 = dataUrl.split(',')[1];
+
+            // Show base64
+            showB64(base64);
+
+            // Build request payload
+            const payload = { image: base64 };
+            showDebug('reqOutput', payload);
+            setBadge('reqBadge', 'sending');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`Server error ${response.status}`);
+
+                const result = await response.json();
+                setBadge('reqBadge', 'ok');
+                setBadge('resBadge', 'ok');
+                // strip large base64 blobs before showing in debug panel
+                const debugResult = Object.assign({}, result, {
+                    stage1_image: result.stage1_image ? `[base64 ${result.stage1_image.length} chars]` : null,
+                    mrz_image:    result.mrz_image    ? `[base64 ${result.mrz_image.length} chars]`    : null,
+                    // keep mrz_fields and mrz_raw_text visible
+                });
+                showDebug('resOutput', debugResult);
+                // Also update response badge label with key result
+                const badge = document.getElementById('resBadge');
+                badge.textContent = result.has_passport ? '✅ passport' : '❌ no passport';
+
+                removeTyping();
+                showResult(result);
+            } catch (err) {
+                setBadge('reqBadge', 'err');
+                setBadge('resBadge', 'err');
+                document.getElementById('resOutput').textContent = err.message;
+                removeTyping();
+                addMessage('received', '❌ ' + err.message);
+            }
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    function showResult(result) {
+        const hasPassport = result.has_passport || false;
+        const confidence  = result.confidence || 0;
+        const pct         = Math.round(confidence * 100);
+
+        const stage1Fields = (result.stage1_detections || [])
+            .map(d => `<span class="field-tag">${d.class} ${Math.round(d.confidence * 100)}%</span>`)
+            .join('');
+
+        const mrzFields = (result.mrz_detections || [])
+            .map(d => `<span class="field-tag">${d.class} ${Math.round(d.confidence * 100)}%</span>`)
+            .join('');
+
+        const stage1Img = result.stage1_image
+            ? `<img src="data:image/jpeg;base64,${result.stage1_image}" alt="stage1">`
+            : '';
+
+        // MRZ parsed fields table
+        const fields = result.mrz_fields || {};
+        const fieldLabels = {
+            document_type:    'Document Type',
+            issuing_country:  'Issuing Country',
+            surname:          'Surname',
+            given_names:      'Given Names',
+            passport_number:  'Passport Number',
+            nationality:      'Nationality',
+            date_of_birth:    'Date of Birth',
+            sex:              'Sex',
+            expiry_date:      'Expiry Date',
+        };
+        const fieldRows = Object.entries(fieldLabels)
+            .filter(([k]) => fields[k])
+            .map(([k, label]) => `
+                <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1e2d3d;font-size:12px;">
+                    <span style="color:#6b8aad;">${label}</span>
+                    <span style="color:#e2e8f0;font-weight:600;">${fields[k]}</span>
+                </div>`).join('');
+
+        const rawOcr = result.mrz_raw_text
+            ? `<div style="margin-top:8px;font-size:10px;color:#475569;font-family:monospace;word-break:break-all;">${result.mrz_raw_text}</div>`
+            : '';
+
+        const mrzSection = (result.mrz_image || fieldRows) ? `
+            <div style="margin-top:10px; border-top:1px solid #1e2d3d; padding-top:8px;">
+                <div style="font-size:11px;color:#6b8aad;margin-bottom:6px;font-weight:600;">Stage 2 — MRZ Extraction</div>
+                ${result.mrz_image ? `<img src="data:image/jpeg;base64,${result.mrz_image}" alt="mrz" style="width:100%;border-radius:4px;display:block;margin-bottom:8px;">` : ''}
+                ${fieldRows ? `<div style="padding:0 2px;">${fieldRows}</div>` : '<div style="color:#6b8aad;font-size:12px;">No MRZ fields read</div>'}
+                ${rawOcr}
+            </div>` : '';
+
+        const html = `
+            <div class="result-card">
+                ${stage1Img}
+                <div class="result-body">
+                    <div class="result-status ${hasPassport ? 'yes' : 'no'}">
+                        ${hasPassport ? '✅ Passport detected' : '❌ ' + (result.message || 'No passport found')}
+                    </div>
+                    ${hasPassport ? `
+                    <div class="result-conf">Confidence: ${pct}%</div>
+                    <div class="conf-bar"><div class="conf-fill" style="width:${pct}%"></div></div>
+                    ${stage1Fields ? `<div class="field-tags">${stage1Fields}</div>` : ''}
+                    ${mrzSection}` : ''}
+                </div>
+            </div>`;
+
+        addMessage('received', html, true);
+    }
+</script>
+</body>
+</html>
